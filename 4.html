@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Mixer</title>
+    <style>
+        #outputCanvas {
+            border: 1px solid black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="image1" accept="image/*">
+    <input type="file" id="image2" accept="image/*">
+    <button onclick="mixImages()">Mix Images</button>
+    <canvas id="outputCanvas" width="500" height="500"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d');
+        let img1, img2;
+
+        document.getElementById('image1').addEventListener('change', function() {
+            img1 = new Image();
+            img1.onload = drawImage;
+            img1.src = URL.createObjectURL(this.files[0]);
+        });
+
+        document.getElementById('image2').addEventListener('change', function() {
+            img2 = new Image();
+            img2.onload = drawImage;
+            img2.src = URL.createObjectURL(this.files[0]);
+        });
+
+        function drawImage() {
+            if (img1 && img2) {
+                ctx.drawImage(img1, 0, 0, canvas.width / 2, canvas.height);
+                ctx.drawImage(img2, canvas.width / 2, 0, canvas.width / 2, canvas.height);
+            }
+        }
+
+        function mixImages() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const gridSize = 50;
+            const rows = canvas.height / gridSize;
+            const cols = canvas.width / gridSize;
+            const blendLayers = 3;  // Number of overlapping squares to create the blend effect
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    for (let k = 0; k < blendLayers; k++) {
+                        let sourceImg = (Math.random() < 0.5) ? img1 : img2;
+                        
+                        ctx.globalAlpha = (blendLayers - k) / (blendLayers + 1);  // Decreasing opacity for blending effect
+                        ctx.drawImage(sourceImg, j * gridSize, i * gridSize, gridSize, gridSize, j * gridSize, i * gridSize, gridSize, gridSize);
+                    }
+                }
+            }
+            
+            ctx.globalAlpha = 1;  // Reset the alpha to default
+        }
+    </script>
+</body>
+</html>
