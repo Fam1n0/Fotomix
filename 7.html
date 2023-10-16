@@ -41,28 +41,57 @@
             }
         }
 
-        function getRandomShape() {
-            // For simplicity, return a random rectangular region
-            return {
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                width: 50 + Math.random() * 100,
-                height: 50 + Math.random() * 100
-            };
+        function getRandomPolygonInGrid(x, y, size) {
+            const sides = 3 + Math.floor(Math.random() * 4);
+            const points = [];
+            const margin = size * 0.1;  // 10% margin
+            for (let i = 0; i < sides; i++) {
+                points.push({
+                    x: x + margin + Math.random() * (size - 2 * margin),
+                    y: y + margin + Math.random() * (size - 2 * margin)
+                });
+            }
+            return points;
+        }
+
+        function drawPolygon(ctx, points) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
         }
 
         function mixImages() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            for (let i = 0; i < 20; i++) { // 20 pieces for demonstration
-                let shape = getRandomShape();
-                let sourceImg = (Math.random() < 0.5) ? img1 : img2;
+            const gridSize = 50;
+            const rows = canvas.height / gridSize;
+            const cols = canvas.width / gridSize;
+            const polygonsPerGrid = 5;  // Number of polygons drawn in each grid cell
 
-                ctx.drawImage(
-                    sourceImg,
-                    shape.x, shape.y, shape.width, shape.height,
-                    shape.x, shape.y, shape.width, shape.height
-                );
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    for (let k = 0; k < polygonsPerGrid; k++) {
+                        ctx.save();
+
+                        let polygon = getRandomPolygonInGrid(j * gridSize, i * gridSize, gridSize);
+                        let sourceImg = (Math.random() < 0.5) ? img1 : img2;
+
+                        drawPolygon(ctx, polygon);
+                        ctx.clip();
+
+                        ctx.drawImage(sourceImg, j * gridSize, i * gridSize, gridSize, gridSize, j * gridSize, i * gridSize, gridSize, gridSize);
+
+                        ctx.globalCompositeOperation = 'destination-in';
+                        drawPolygon(ctx, polygon);
+                        ctx.fill();
+
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.restore();
+                    }
+                }
             }
         }
     </script>
