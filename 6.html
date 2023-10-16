@@ -66,7 +66,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();  // Save the canvas state at the beginning
 
-            const numberOfPieces = 500;
+            const numberOfPieces = 2000;
             for (let i = 0; i < numberOfPieces; i++) {
                 let polygon = getRandomPolygon();
                 let sourceImg = (Math.random() < 0.5) ? img1 : img2;
