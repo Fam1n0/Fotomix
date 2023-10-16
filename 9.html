@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Mixer</title>
+    <style>
+        #outputCanvas {
+            border: 1px solid black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="image1" accept="image/*">
+    <input type="file" id="image2" accept="image/*">
+    <button onclick="mixImages()">Mix Images</button>
+    <canvas id="outputCanvas" width="500" height="500"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d');
+        let img1, img2;
+
+        document.getElementById('image1').addEventListener('change', function() {
+            img1 = new Image();
+            img1.onload = drawImage;
+            img1.src = URL.createObjectURL(this.files[0]);
+        });
+
+        document.getElementById('image2').addEventListener('change', function() {
+            img2 = new Image();
+            img2.onload = drawImage;
+            img2.src = URL.createObjectURL(this.files[0]);
+        });
+
+        function drawImage() {
+            if (img1 && img2) {
+                ctx.drawImage(img1, 0, 0, canvas.width / 2, canvas.height);
+                ctx.drawImage(img2, canvas.width / 2, 0, canvas.width / 2, canvas.height);
+            }
+        }
+
+        function getRandomSnippet(img) {
+            const size = Math.random() * 100 + 50;  // Random size between 50 and 150
+            const x = Math.random() * (img.width - size);
+            const y = Math.random() * (img.height - size);
+            return { x, y, size };
+        }
+
+        function mixImages() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const maxAttempts = 1000;  // To ensure we don't end up in an infinite loop
+            let attempts = 0;
+
+            while (attempts < maxAttempts) {
+                const imgSnippet = (Math.random() < 0.5) ? getRandomSnippet(img1) : getRandomSnippet(img2);
+                const destX = Math.random() * (canvas.width - imgSnippet.size);
+                const destY = Math.random() * (canvas.height - imgSnippet.size);
+                const destSize = Math.random() * 100 + 50;  // Random size between 50 and 150
+
+                ctx.globalAlpha = 0.5;  // Set opacity for blending
+                ctx.drawImage(img1, imgSnippet.x, imgSnippet.y, imgSnippet.size, imgSnippet.size, destX, destY, destSize, destSize);
+
+                attempts++;
+            }
+
+            ctx.globalAlpha = 1;  // Reset the alpha to default
+        }
+    </script>
+</body>
+</html>
