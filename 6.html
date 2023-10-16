@@ -64,6 +64,7 @@
 
         function mixImages() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();  // Save the canvas state at the beginning
 
             const numberOfPieces = 100;
             for (let i = 0; i < numberOfPieces; i++) {
@@ -88,9 +89,10 @@
 
                 // Reset the composite operation and clipping region
                 ctx.globalCompositeOperation = 'source-over';
-                ctx.restore();
-                ctx.save();
+                ctx.beginPath();  // Reset the current path
             }
+
+            ctx.restore();  // Restore the canvas state at the end
         }
     </script>
 </body>
