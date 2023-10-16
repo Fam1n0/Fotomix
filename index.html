@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Mix Images</title>
+    <style>
+        #image-container {
+            position: relative;
+            width: 300px; /* Adjust based on your expected image size */
+            height: 200px; /* Adjust based on your expected image size */
+        }
+
+        .mixable-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0.2; /* Adjust based on your preference */
+            transition: opacity 1s; /* Adjust duration as needed */
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Image 1: <input type="file" onchange="loadImage(event, 1)">
+        Image 2: <input type="file" onchange="loadImage(event, 2)">
+        Image 3: <input type="file" onchange="loadImage(event, 3)">
+        Image 4: <input type="file" onchange="loadImage(event, 4)">
+        Image 5: <input type="file" onchange="loadImage(event, 5)">
+    </div>
+
+    <div id="image-container">
+        <img id="image1" class="mixable-image" style="display:none;">
+        <img id="image2" class="mixable-image" style="display:none;">
+        <img id="image3" class="mixable-image" style="display:none;">
+        <img id="image4" class="mixable-image" style="display:none;">
+        <img id="image5" class="mixable-image" style="display:none;">
+    </div>
+
+    <button onclick="mixImages()">Mix Images</button>
+
+    <script>
+        function loadImage(event, imageNumber) {
+            const img = document.getElementById('image' + imageNumber);
+            img.src = URL.createObjectURL(event.target.files[0]);
+            img.style.display = 'block';
+        }
+
+        function mixImages() {
+            const images = document.querySelectorAll('.mixable-image');
+            images.forEach(img => {
+                if (img.src) { // Ensure the image has been uploaded before applying mix
+                    img.style.zIndex = Math.floor(Math.random() * 5);
+                    img.style.opacity = Math.random();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
