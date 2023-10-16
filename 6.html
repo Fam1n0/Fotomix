@@ -44,10 +44,11 @@
         function getRandomPolygonInGrid(x, y, size) {
             const sides = 3 + Math.floor(Math.random() * 4);
             const points = [];
+            const margin = size * 0.1;  // 10% margin
             for (let i = 0; i < sides; i++) {
                 points.push({
-                    x: x + Math.random() * size,
-                    y: y + Math.random() * size
+                    x: x + margin + Math.random() * (size - 2 * margin),
+                    y: y + margin + Math.random() * (size - 2 * margin)
                 });
             }
             return points;
