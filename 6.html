@@ -64,7 +64,6 @@
 
         function mixImages() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
 
             const gridSize = 50;
             const rows = canvas.height / gridSize;
@@ -72,6 +71,8 @@
 
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
+                    ctx.save();  // Save the context state at the start of each grid cell processing
+
                     let polygon = getRandomPolygonInGrid(j * gridSize, i * gridSize, gridSize);
                     let sourceImg = (Math.random() < 0.5) ? img1 : img2;
 
@@ -85,11 +86,9 @@
                     ctx.fill();
 
                     ctx.globalCompositeOperation = 'source-over';
-                    ctx.beginPath();
+                    ctx.restore();  // Restore the context state to the saved state
                 }
             }
-
-            ctx.restore();
         }
     </script>
 </body>
