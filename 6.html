@@ -41,13 +41,13 @@
             }
         }
 
-        function getRandomPolygon() {
-            const sides = 3 + Math.floor(Math.random() * 4); // Random number between 3 and 6
+        function getRandomPolygonInGrid(x, y, size) {
+            const sides = 3 + Math.floor(Math.random() * 4);
             const points = [];
             for (let i = 0; i < sides; i++) {
                 points.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height
+                    x: x + Math.random() * size,
+                    y: y + Math.random() * size
                 });
             }
             return points;
@@ -64,35 +64,32 @@
 
         function mixImages() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();  // Save the canvas state at the beginning
+            ctx.save();
 
-            const numberOfPieces = 2000;
-            for (let i = 0; i < numberOfPieces; i++) {
-                let polygon = getRandomPolygon();
-                let sourceImg = (Math.random() < 0.5) ? img1 : img2;
+            const gridSize = 50;
+            const rows = canvas.height / gridSize;
+            const cols = canvas.width / gridSize;
 
-                // Draw the polygon shape for clipping
-                drawPolygon(ctx, polygon);
-                ctx.clip();
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    let polygon = getRandomPolygonInGrid(j * gridSize, i * gridSize, gridSize);
+                    let sourceImg = (Math.random() < 0.5) ? img1 : img2;
 
-                ctx.drawImage(sourceImg, 0, 0, canvas.width, canvas.height);
+                    drawPolygon(ctx, polygon);
+                    ctx.clip();
 
-                // Feather the edges for smoother blending
-                ctx.globalCompositeOperation = 'destination-in';
-                drawPolygon(ctx, polygon);
-                let gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
-                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
-                gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.6)');
-                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = gradient;
-                ctx.fill();
+                    ctx.drawImage(sourceImg, j * gridSize, i * gridSize, gridSize, gridSize, j * gridSize, i * gridSize, gridSize, gridSize);
 
-                // Reset the composite operation and clipping region
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.beginPath();  // Reset the current path
+                    ctx.globalCompositeOperation = 'destination-in';
+                    drawPolygon(ctx, polygon);
+                    ctx.fill();
+
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.beginPath();
+                }
             }
 
-            ctx.restore();  // Restore the canvas state at the end
+            ctx.restore();
         }
     </script>
 </body>
