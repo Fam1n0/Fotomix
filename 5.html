@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artistic Collage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.1/fabric.min.js"></script>
+</head>
+
+<body>
+    <div>
+        Image 1: <input type="file" onchange="loadImage(event, 1)">
+        Image 2: <input type="file" onchange="loadImage(event, 2)">
+        Image 3: <input type="file" onchange="loadImage(event, 3)">
+        Image 4: <input type="file" onchange="loadImage(event, 4)">
+        Image 5: <input type="file" onchange="loadImage(event, 5)">
+    </div>
+
+    <canvas id="collageCanvas" width="300" height="200"></canvas>
+    <button onclick="createCollage()">Create Collage</button>
+
+    <script>
+        let loadedImages = [];
+        let loadedCount = 0;
+
+        function loadImage(event, imageNumber) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                let img = new Image();
+                img.onload = function() {
+                    loadedImages[imageNumber - 1] = img;
+                    loadedCount++;
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function getRandomShape() {
+            const shapes = ['triangle', 'rectangle', 'ellipse'];
+            return shapes[Math.floor(Math.random() * shapes.length)];
+        }
+
+        function createCollage() {
+            if (loadedCount < loadedImages.length) {
+                alert("Please wait for all images to load.");
+                return;
+            }
+
+            const canvas = new fabric.Canvas('collageCanvas');
+            canvas.clear(); // Clear previous collage
+
+            loadedImages.forEach(img => {
+                const shape = getRandomShape();
+
+                let clipShape;
+                let patternShape;
+
+                switch (shape) {
+                    case 'triangle':
+                        const triangleWidth = Math.random() * 60 + 40;
+                        const triangleHeight = Math.random() * 60 + 40;
+                        const offsetX = Math.random() * (img.width - triangleWidth);
+                        const offsetY = Math.random() * (img.height - triangleHeight);
+
+                        clipShape = new fabric.Triangle({
+                            width: triangleWidth,
+                            height: triangleHeight,
+                            left: offsetX,
+                            top: offsetY,
+                            originX: 'center',
+                            originY: 'center',
+                            fill: '#FFF',
+                            selectable: false
+                        });
+
+                        patternShape = new fabric.Triangle({
+                            width: triangleWidth,
+                            height: triangleHeight,
+                            fill: new fabric.Pattern({
+                                source: img,
+                                repeat: 'no-repeat',
+                                offsetX: offsetX + triangleWidth / 2,
+                                offsetY: offsetY + triangleHeight / 2
+                            }),
+                            left: Math.random() * canvas.width,
+                            top: Math.random() * canvas.height,
+                        });
+                        break;
+
+                    case 'rectangle':
+                        const rectWidth = Math.random() * 60 + 40;
+                        const rectHeight = Math.random() * 60 + 40;
+                        const rectOffsetX = Math.random() * (img.width - rectWidth);
+                        const rectOffsetY = Math.random() * (img.height - rectHeight);
+
+                        clipShape = new fabric.Rect({
+                            width: rectWidth,
+                            height: rectHeight,
+                            left: rectOffsetX,
+                            top: rectOffsetY,
+                            originX: 'center',
+                            originY: 'center',
+                            fill: '#FFF',
+                            selectable: false
+                        });
+
+                        patternShape = new fabric.Rect({
+                            width: rectWidth,
+                            height: rectHeight,
+                            fill: new fabric.Pattern({
+                                source: img,
+                                repeat: 'no-repeat',
+                                offsetX: rectOffsetX + rectWidth / 2,
+                                offsetY: rectOffsetY + rectHeight / 2
+                            }),
+                            left: Math.random() * canvas.width,
+                            top: Math.random() * canvas.height,
+                        });
+                        break;
+
+                    case 'ellipse':
+                        const ellipseRx = Math.random() * 30 + 20;
+                        const ellipseRy = Math.random() * 30 + 20;
+                        const ellipseOffsetX = Math.random() * (img.width - ellipseRx * 2);
+                        const ellipseOffsetY = Math.random() * (img.height - ellipseRy * 2);
+
+                        clipShape = new fabric.Ellipse({
+                            rx: ellipseRx,
+                            ry: ellipseRy,
+                            left: ellipseOffsetX,
+                            top: ellipseOffsetY,
+                            originX: 'center',
+                            originY: 'center',
+                            fill: '#FFF',
+                            selectable: false
+                        });
+
+                        patternShape = new fabric.Ellipse({
+                            rx: ellipseRx,
+                            ry: ellipseRy,
+                            fill: new fabric.Pattern({
+                                source: img,
+                                repeat: 'no-repeat',
+                                offsetX: ellipseOffsetX + ellipseRx,
+                                offsetY: ellipseOffsetY + ellipseRy
+                            }),
+                            left: Math.random() * canvas.width,
+                            top: Math.random() * canvas.height,
+                        });
+                        break;
+                }
+
+                patternShape.set('clipTo', ctx => {
+                    clipShape.render(ctx);
+                });
+
+                canvas.add(patternShape);
+            });
+        }
+    </script>
+</body>
+</html>
