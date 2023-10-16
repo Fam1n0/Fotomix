@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Mixer</title>
+    <style>
+        #outputCanvas {
+            border: 1px solid black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="image1" accept="image/*">
+    <input type="file" id="image2" accept="image/*">
+    <button onclick="mixImages()">Mix Images</button>
+    <canvas id="outputCanvas" width="500" height="500"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d');
+        let img1, img2;
+
+        document.getElementById('image1').addEventListener('change', function() {
+            img1 = new Image();
+            img1.onload = drawImage;
+            img1.src = URL.createObjectURL(this.files[0]);
+        });
+
+        document.getElementById('image2').addEventListener('change', function() {
+            img2 = new Image();
+            img2.onload = drawImage;
+            img2.src = URL.createObjectURL(this.files[0]);
+        });
+
+        function drawImage() {
+            if (img1 && img2) {
+                ctx.drawImage(img1, 0, 0, canvas.width / 2, canvas.height);
+                ctx.drawImage(img2, canvas.width / 2, 0, canvas.width / 2, canvas.height);
+            }
+        }
+
+        function getRandomShape() {
+            // For simplicity, return a random rectangular region
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                width: 50 + Math.random() * 100,
+                height: 50 + Math.random() * 100
+            };
+        }
+
+        function mixImages() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < 20; i++) { // 20 pieces for demonstration
+                let shape = getRandomShape();
+                let sourceImg = (Math.random() < 0.5) ? img1 : img2;
+
+                ctx.drawImage(
+                    sourceImg,
+                    shape.x, shape.y, shape.width, shape.height,
+                    shape.x, shape.y, shape.width, shape.height
+                );
+            }
+        }
+    </script>
+</body>
+</html>
