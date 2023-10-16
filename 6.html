@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Mixer</title>
+    <style>
+        #outputCanvas {
+            border: 1px solid black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="image1" accept="image/*">
+    <input type="file" id="image2" accept="image/*">
+    <button onclick="mixImages()">Mix Images</button>
+    <canvas id="outputCanvas" width="500" height="500"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d');
+        let img1, img2;
+
+        document.getElementById('image1').addEventListener('change', function() {
+            img1 = new Image();
+            img1.onload = drawImage;
+            img1.src = URL.createObjectURL(this.files[0]);
+        });
+
+        document.getElementById('image2').addEventListener('change', function() {
+            img2 = new Image();
+            img2.onload = drawImage;
+            img2.src = URL.createObjectURL(this.files[0]);
+        });
+
+        function drawImage() {
+            if (img1 && img2) {
+                ctx.drawImage(img1, 0, 0, canvas.width / 2, canvas.height);
+                ctx.drawImage(img2, canvas.width / 2, 0, canvas.width / 2, canvas.height);
+            }
+        }
+
+        function getRandomPolygon() {
+            const sides = 3 + Math.floor(Math.random() * 4); // Random number between 3 and 6
+            const points = [];
+            for (let i = 0; i < sides; i++) {
+                points.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+            return points;
+        }
+
+        function drawPolygon(ctx, points) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+        }
+
+        function mixImages() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const numberOfPieces = 100;
+            for (let i = 0; i < numberOfPieces; i++) {
+                let polygon = getRandomPolygon();
+                let sourceImg = (Math.random() < 0.5) ? img1 : img2;
+
+                // Draw the polygon shape for clipping
+                drawPolygon(ctx, polygon);
+                ctx.clip();
+
+                ctx.drawImage(sourceImg, 0, 0, canvas.width, canvas.height);
+
+                // Feather the edges for smoother blending
+                ctx.globalCompositeOperation = 'destination-in';
+                drawPolygon(ctx, polygon);
+                let gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+                gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.6)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Reset the composite operation and clipping region
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.restore();
+                ctx.save();
+            }
+        }
+    </script>
+</body>
+</html>
